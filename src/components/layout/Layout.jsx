@@ -33,7 +33,9 @@ function Layout(props) {
     }).then(() => {
       updateFavoriteMeetUps()
       getMeetups()
-      setAlertMessage('Meetup is Added to Favorites Successfully!')
+      setAlertMessage(
+        favorite ? 'Meetup is Added to Favorites Successfully!' : 'Meetup is removed from Favorites Successfully!'
+      )
       setShowAlert(true)
     })
   }
