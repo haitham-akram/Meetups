@@ -1,12 +1,16 @@
 import classes from './Layout.module.css'
 import MainNavigation from './MainNavigation'
 import { createContext, useEffect, useState, useCallback } from 'react'
+import Alert from '../ui/Alert'
+import NewMeetupForm from '../meetups/MeetupForm'
 
 const MeetupsContext = createContext(null)
 
 function Layout(props) {
   const [meetups, setMeetups] = useState([])
   const [favoriteMeetup, setFavoriteMeetup] = useState([])
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setAlertMessage] = useState('')
 
   const getMeetupsData = async () => {
     const response = await fetch('https://react-736c9-default-rtdb.europe-west1.firebasedatabase.app/meetups.json', {
@@ -29,6 +33,8 @@ function Layout(props) {
     }).then(() => {
       updateFavoriteMeetUps()
       getMeetups()
+      setAlertMessage('Meetup is Added to Favorites Successfully!')
+      setShowAlert(true)
     })
   }
 
@@ -67,9 +73,41 @@ function Layout(props) {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then(getMeetups)
+    })
+      .then(getMeetups)
+      .then(() => {
+        setAlertMessage('Meetup added successfully!')
+        setShowAlert(true)
+      })
   }
-
+  const getOneMeetup = async (id) => {
+    const response = await fetch(
+      `https://react-736c9-default-rtdb.europe-west1.firebasedatabase.app/meetups/${id}.json`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    const data = await response.json()
+    return data
+  }
+  const onEditMeetupHandler = async (id, editedMeetupData) => {
+    const response = await fetch(
+      `https://react-736c9-default-rtdb.europe-west1.firebasedatabase.app/meetups/${id}.json`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedMeetupData),
+      }
+    )
+    console.log(response.body)
+    setAlertMessage('Meetup edited successfully!')
+    setShowAlert(true)
+  }
   const onDeleteMeetupHandler = async (id) => {
     const response = await fetch(
       `https://react-736c9-default-rtdb.europe-west1.firebasedatabase.app/meetups/${id}.json`,
@@ -82,9 +120,15 @@ function Layout(props) {
     )
     if (response.ok) {
       getMeetups()
+      setAlertMessage('Meetup deleted successfully!')
+      setShowAlert(true)
     } else {
       console.log("can't be deleted")
     }
+  }
+
+  const closeAlertHandler = () => {
+    setShowAlert(false)
   }
 
   useEffect(() => {
@@ -107,9 +151,12 @@ function Layout(props) {
         onFavoritesHandler,
         onDeleteMeetupHandler,
         updateFavoriteMeetUps,
+        onEditMeetupHandler,
+        getOneMeetup,
       }}
     >
       <MainNavigation />
+      {showAlert && <Alert message={alertMessage} onClose={closeAlertHandler} />}
       <main className={classes.main}>{props.children}</main>
     </MeetupsContext.Provider>
   )

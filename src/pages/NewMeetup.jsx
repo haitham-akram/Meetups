@@ -1,4 +1,4 @@
-import NewMeetupForm from '../components/meetups/NewMeetupForm'
+import MeetupForm from '../components/meetups/MeetupForm'
 import { MeetupsContext } from '../components/layout/Layout'
 import { useContext } from 'react'
 
@@ -7,7 +7,7 @@ function NewMeetupPage() {
   return (
     <section>
       <h1>Add New Meetup</h1>
-      <NewMeetupForm onAddMeetup={onAddMeetupHandler} />
+      <MeetupForm onAddMeetup={onAddMeetupHandler} onEditMeetup={null} oldMeetup={null} />
     </section>
   )
 }
